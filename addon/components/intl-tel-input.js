@@ -288,7 +288,7 @@ export default Ember.Component.extend({
    * @type Object
    * @readOnly
    */
-  selectedCountryData: Ember.computed('value', {
+  selectedCountryData: Ember.computed('number', {
     get() {
       return this.$().intlTelInput('getSelectedCountryData');
     },
@@ -351,6 +351,7 @@ export default Ember.Component.extend({
    * @method didInsertElement
    */
   didInsertElement() {
+    this._super(...arguments)
     this.$().on('input', event => this.send('handleUpdate', event));
     this.$().intlTelInput({
       autoHideDialCode: this.get('autoHideDialCode'),
@@ -364,6 +365,11 @@ export default Ember.Component.extend({
     });
   },
 
+  didRender() {
+    this._super(...arguments)
+    this.$().intlTelInput('setNumber', this.get('value'))
+  },
+
   /**
    * Destroy the intlTelInput instance.
    *
@@ -375,13 +381,19 @@ export default Ember.Component.extend({
 
   actions: {
     handleUpdate(event) {
-      this.sendAction('update', event.target.value);
       if (this.get('hasUtilsScript')) {
         const numberFormat = intlTelInputUtils.numberFormat[this.get('numberFormat')];
         const formatted = this.$().intlTelInput('getNumber', numberFormat);
         this.set('number', formatted);
-        this.sendAction('formattedUpdate', formatted);
       }
+
+      this.sendAction('update', event.target.value, this.getProperties([
+        'number',
+        'extension',
+        'selectedCountryData',
+        'isValidNumber',
+        'validationError'
+      ]));
     }
   }
 });
