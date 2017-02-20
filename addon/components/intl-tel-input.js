@@ -367,7 +367,10 @@ export default Ember.Component.extend({
 
   didRender() {
     this._super(...arguments)
-    this.$().intlTelInput('setNumber', this.get('value'))
+    const value = this.get('value')
+    if (value) {
+      this.$().intlTelInput('setNumber', value)
+    }
   },
 
   /**
